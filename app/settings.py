@@ -141,6 +141,7 @@ INSTALLED_APPS = filter(None, [
     'app.home',
     'app.shared',
     'app.health',
+    'app.routes',
     'app.workouts',
 ])
 
@@ -212,3 +213,10 @@ else:
     EMAIL_HOST_USER = ''
     EMAIL_HOST_PASSWORD = ''
     EMAIL_USE_TLS = False
+
+
+###############################################################################
+# keys
+###############################################################################
+
+GOOGLE_BROWSER_KEY = 'AIzaSyA5B9zYYg9j-FwwHVggUuATjF5gtnWknDk'

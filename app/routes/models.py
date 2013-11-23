@@ -36,13 +36,16 @@ class Route(CreatedAtMixin):
     @classmethod
     def route_from_gpx(cls, gpx_file, request):
         tracks, s_time, f_time, length, h_up, h_down = handle_gpx(gpx_file)
+        tracks_json = json.dumps(tracks)
 
-        cls.objects.create(
+        route = cls.objects.create(
             user=request.user,
             start_time=s_time,
             finish_time=f_time,
             length=length,
             height_up=h_up,
             height_down=h_down,
-            routes_json=json.dumps(tracks),
+            tracks_json=tracks_json,
         )
+
+        return route.id, tracks_json

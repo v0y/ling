@@ -4,7 +4,6 @@ import json
 
 from django.contrib.auth.models import User
 from django.db import models
-from jsonfield.fields import JSONField
 
 from app.shared.models import CreatedAtMixin
 from app.workouts.models import Workout
@@ -28,7 +27,7 @@ class Route(CreatedAtMixin):
     height_down = models.FloatField(
         default=0, verbose_name=u'Różnica wysokości w dół')
 
-    tracks_json = JSONField(default='[]')
+    tracks_json = models.CharField(default='[]')
 
     class Meta:
         verbose_name = u"trasa"

@@ -190,6 +190,61 @@ displayRoutesDistance = (routesJSON, map) ->
     drawFullKmMarkers(fullKmSectionsList, map)
 
 ###############################################################################
+# Handle AJAX file upload
+###############################################################################
+
+bindToFileInputChange = ->
+    $form = $('#gpx-file-input-form')
+    $form.find("input:file").change(->
+        sendFile($form)
+    )
+
+sendFile = ($form) ->
+    $inputField = $form.find("input:file")
+    # validation
+    if validateFileExtansion($inputField)
+        # create an XHR request
+        xhr = new XMLHttpRequest()
+        # ...open the request...
+        xhr.open("POST", url)
+        # ...handle csrf...
+        csrfToken = $.cookie('csrftoken')       # jQuery cookie as requierment
+        if csrfToken
+            xhr.setRequestHeader("X-CSRFToken", csrfToken)
+        # ...set up event listeners...
+        xhr.onreadystatechange = ->
+            fileUploadChangeState(xhr, $form)
+        # ... and send form.
+        fd = new FormData($form.get(0))
+        xhr.send(fd)
+
+
+fileUploadChangeState = (xhr) ->
+    # if upload complete and successful
+    if xhr.readyState==4 && xhr.status==200
+        # get data from response
+        response = JSON.parse(xhr.responseText)
+        routeId = response['id']
+        # response = {'id': 5, 'routesJSON': ...}
+        routesJSON = response['routesJSON']
+        # draw routes on map
+        drawRoutes(routesJSON, map)
+        # display distance related data
+        displayRoutesDistance(routesJSON, map)
+    # alert if something went wrong
+    else if xhr.readyState==4:
+        alert("Something went wrong. Error" + xhr.status)
+
+validateFileExtansion = ($inputField) ->
+    extention = $inputField.val().split(".").pop().toLowerCase()
+    if extention == 'gpx'
+        return true;
+    else
+        alert("To nie jest właściwy rodzaj pliku - wybierz plik .gpx")
+        return false;
+
+
+###############################################################################
 # Run
 ###############################################################################
 
@@ -201,3 +256,6 @@ window.main = (routesJSON) ->
         drawRoutes(routesJSON, map)
         # display distance related data
         displayRoutesDistance(routesJSON, map)
+
+    # bind to form file input change event
+    bindToFileInputChange()

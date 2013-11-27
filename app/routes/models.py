@@ -27,7 +27,7 @@ class Route(CreatedAtMixin):
     height_down = models.FloatField(
         default=0, verbose_name=u'Różnica wysokości w dół')
 
-    tracks_json = models.CharField(default='[]')
+    tracks_json = models.TextField(default='[]')
 
     class Meta:
         verbose_name = u"trasa"

@@ -1,9 +1,9 @@
 # encoding: utf-8
 
 import math
-from time import strptime
 from xml.etree.cElementTree import parse
 
+from dateutil import parser as iso8601parser
 
 def handle_gpx(gpx_file):
     # convert gpx to tracks
@@ -87,8 +87,7 @@ def get_start_and_finish_times(tracks):
     finish_time = tracks[-1]['segments'][-1][-1]['time']
 
     # convert strings to datetimes
-    format = ""     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< TODO
-    return strptime(start_time, format), strptime(finish_time, format)
+    return iso8601parser.parse(start_time), iso8601parser.parse(finish_time)
 
 
 def get_distance(point1, point2):

@@ -14,7 +14,7 @@ def upload_gpx(request):
     # TODO: file validation
     if request.FILES['gpx_file']:
         # save file to db
-        id, tracks_json = Route.route_from_gpx(request.FILES['gpx_file'])
+        id, tracks_json = Route.route_from_gpx(request.FILES['gpx_file'], request)
         return {'id': id, 'tracks': tracks_json, 'info': 'OK'}
 
     return {'info': 'Error'}

@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from datetime import datetime
 import math
 from xml.etree.cElementTree import parse
 
@@ -41,11 +42,13 @@ def gpx_to_tracks(gpx_file):
         for seg in trk.findall('%strkseg' % namespace):
             segment = []
             for pt in seg:
+                # convert iso 8601 to string sutable for javascript conversion
+                time = iso8601parser.parse(pt.find(time_ns).text).strftime("%Y-%m-%d %H:%M")
                 point = {
-                    'lat': pt.attrib['lat'],
-                    'lon': pt.attrib['lon'],
-                    'ele': pt.find(ele_ns).text,
-                    'time': pt.find(time_ns).text,
+                    'lat': float(pt.attrib['lat']),
+                    'lon': float(pt.attrib['lon']),
+                    'ele': float(pt.find(ele_ns).text),
+                    'time': time,
                 }
                 segment.append(point)
             track['segments'].append(segment)
@@ -69,7 +72,7 @@ def get_distance_and_elevations_delta(tracks):
                 distance += get_distance(point1, point2)
 
                 # get height difference
-                d_ele = point2 - point1
+                d_ele = point2['ele'] - point1['ele']
                 if d_ele > 0:
                     delta_elevation_up += d_ele
                 else:
@@ -87,7 +90,14 @@ def get_start_and_finish_times(tracks):
     finish_time = tracks[-1]['segments'][-1][-1]['time']
 
     # convert strings to datetimes
-    return iso8601parser.parse(start_time), iso8601parser.parse(finish_time)
+    start_time = datetime.strptime(start_time, "%Y-%m-%d %H:%M")
+    finish_time = datetime.strptime(finish_time, "%Y-%m-%d %H:%M")
+
+    # add timezone information (gpx files use UTC)
+    #start_time = start_time.replace(tzinfo='UTC')
+    #finish_time = finish_time.replace(tzinfo='UTC')
+
+    return start_time, finish_time
 
 
 def get_distance(point1, point2):

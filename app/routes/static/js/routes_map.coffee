@@ -193,47 +193,32 @@ displayRoutesDistance = (routesJSON, map) ->
 # Handle AJAX file upload
 ###############################################################################
 
-bindToFileInputChange = ->
+bindToFileInputChange = (mapHandler) ->
     $form = $('#gpx-file-input-form')
     $form.find("input:file").change(->
-        sendFile($form)
+        sendFile($form, mapHandler)
     )
 
-sendFile = ($form) ->
+
+sendFile = ($form, mapHandler) ->
     $inputField = $form.find("input:file")
     # validation
     if validateFileExtansion($inputField)
         # create an XHR request
         xhr = new XMLHttpRequest()
         # ...open the request...
-        xhr.open("POST", url)
+        xhr.open("POST", $form.data('url'))
         # ...handle csrf...
-        csrfToken = $.cookie('csrftoken')       # jQuery cookie as requierment
+        csrfToken = $.cookie('csrftoken')
         if csrfToken
             xhr.setRequestHeader("X-CSRFToken", csrfToken)
         # ...set up event listeners...
         xhr.onreadystatechange = ->
-            fileUploadChangeState(xhr, $form)
+            fileUploadChangeState(xhr, mapHandler)
         # ... and send form.
         fd = new FormData($form.get(0))
         xhr.send(fd)
 
-
-fileUploadChangeState = (xhr) ->
-    # if upload complete and successful
-    if xhr.readyState==4 && xhr.status==200
-        # get data from response
-        response = JSON.parse(xhr.responseText)
-        routeId = response['id']
-        # response = {'id': 5, 'routesJSON': ...}
-        routesJSON = response['routesJSON']
-        # draw routes on map
-        drawRoutes(routesJSON, map)
-        # display distance related data
-        displayRoutesDistance(routesJSON, map)
-    # alert if something went wrong
-    else if xhr.readyState==4:
-        alert("Something went wrong. Error" + xhr.status)
 
 validateFileExtansion = ($inputField) ->
     extention = $inputField.val().split(".").pop().toLowerCase()
@@ -244,18 +229,65 @@ validateFileExtansion = ($inputField) ->
         return false;
 
 
+fileUploadChangeState = (xhr, mapHandler) ->
+    # if upload complete and successful
+    if xhr.readyState==4 && xhr.status==200
+        # get data from response
+        response = JSON.parse(xhr.responseText)
+        routeId = response['id']
+        # response = {'id': 5, 'routesJSON': ...}
+        routes = JSON.parse(response['tracks'])
+        # display new route
+        handleMapOnFileUploadSuccess(mapHandler, routes)
+        # fill form fields
+        fillFormFields(routeId, mapHandler)
+    # alert if something went wrong
+    else if xhr.readyState==4
+        alert("Something went wrong. Error" + xhr.status)
+
+
+handleMapOnFileUploadSuccess = (mapHandler, routes) ->
+    # check if map was initialized
+    if not mapHandler.map
+        mapHandler.initializeMap()
+    # draw routes on map
+    mapHandler.singleNewRoute(routes)
+
+
+fillFormFields = (routeId, mapHandler) ->
+    # route id
+    null;null;
+    # distance
+    $('#id_distance').val(mapHandler.distance)
+    # start date
+    $('#id_datetime_start').val(mapHandler.startTime.format('DD-MM-YYYY'))
+    # start time
+    $('#id_time_start').val(mapHandler.startTime.format('HH:mm'))
+    # duration
+    $('#id_duration_hours').val(mapHandler.duration.hours())
+    $('#id_duration_mins').val(mapHandler.duration.minutes())
+    $('#id_duration_secs').val(mapHandler.duration.seconds())
+
+
 ###############################################################################
 # Run
 ###############################################################################
 
-window.main = (routesJSON) ->
-    if not $.isEmptyObject(routesJSON)
+main = ->
+    routesJSON = null;
+    mapHandler = new RoutesMapHandler()
+    #if not $.isEmptyObject(routesJSON)
         # intialize map
-        map = initializeMap()
+    #    map = initializeMap()
         # draw routes on map
-        drawRoutes(routesJSON, map)
+    #    drawRoutes(routesJSON, map)
         # display distance related data
-        displayRoutesDistance(routesJSON, map)
+    #    displayRoutesDistance(routesJSON, map)
+    #else
+    #    map = null;
 
     # bind to form file input change event
-    bindToFileInputChange()
+    bindToFileInputChange(mapHandler)
+
+$ ->
+    main()

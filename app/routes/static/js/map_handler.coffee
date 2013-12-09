@@ -3,7 +3,7 @@
 ###############################################################################
 
 class MapHandler
-    map: null;
+    map: null
     routes: []
 
     initializeMap: ->
@@ -53,8 +53,8 @@ class MapHandler
 ###############################################################################
 
 class Route
-    map: null;
-    tracks: null;
+    map: null
+    tracks: null
 
     polylines: []
 
@@ -62,8 +62,8 @@ class Route
     distance: 0
     fullKmSectionsList: []
 
-    startMarker: null;
-    finishMarker: null;
+    startMarker: null
+    finishMarker: null
     fullKmMarkers: []
 
     draw: ->

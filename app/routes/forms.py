@@ -17,7 +17,8 @@ class RouteIdMixin():
     def assign_route_to_workout(self, workout):
         # get route
         route_id = self.cleaned_data['route_id']
-        route = Route.objects.get(id=route_id)
+        if route_id:
+            route = Route.objects.get(id=route_id)
 
         # save
         route.workout = workout

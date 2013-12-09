@@ -16,6 +16,7 @@
 	<form method="post" action="" class="form-horizontal col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 col-sm-10 col-sm-offset-1">
 		<fieldset>
 			{% csrf_token %}
+			{{ form.route_id }}
 			{{ form.name|bootstrap }}
 			{{ form.sport|bootstrap }}
 			{{ form.notes|bootstrap }}

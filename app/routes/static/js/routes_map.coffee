@@ -62,6 +62,8 @@ handleMapOnFileUploadSuccess = (mapHandler, routes) ->
         mapHandler.initializeMap()
     # draw routes on map
     mapHandler.singleNewRoute(routes)
+    # show map canvas
+    $("#map-canvas").show()
 
 
 fillFormFields = (routeId, mapHandler) ->
@@ -84,6 +86,8 @@ fillFormFields = (routeId, mapHandler) ->
 ###############################################################################
 
 main = ->
+    $("#map-canvas").hide()
+
     mapHandler = new RoutesMapHandler()
 
     # bind to form file input change event

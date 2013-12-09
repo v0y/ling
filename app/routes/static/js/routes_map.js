@@ -60,7 +60,8 @@
     if (!mapHandler.map) {
       mapHandler.initializeMap();
     }
-    return mapHandler.singleNewRoute(routes);
+    mapHandler.singleNewRoute(routes);
+    return $("#map-canvas").show();
   };
 
   fillFormFields = function(routeId, mapHandler) {
@@ -76,6 +77,7 @@
   main = function() {
     var mapHandler;
 
+    $("#map-canvas").hide();
     mapHandler = new RoutesMapHandler();
     return bindToFileInputChange(mapHandler);
   };

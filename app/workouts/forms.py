@@ -10,7 +10,7 @@ from app.routes.forms import RouteIdMixin
 from .models import Workout
 
 
-class WorkoutForm(RouteIdMixin, ModelForm):
+class WorkoutForm(ModelForm, RouteIdMixin):
     notes = forms.CharField(
         widget=forms.widgets.Textarea, label=u"Notatki", required=False)
     datetime_start = forms.DateField(label=u"Data", input_formats=['%d-%m-%Y'])
@@ -23,6 +23,7 @@ class WorkoutForm(RouteIdMixin, ModelForm):
     duration_secs = forms.IntegerField(
         validators=[MinValueValidator(0), MaxValueValidator(59)], initial=0,
         required=False)
+    route_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
 
     class Meta:
         button_text = u"Zapisz"

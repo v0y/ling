@@ -42,8 +42,8 @@ def gpx_to_tracks(gpx_file):
         for seg in trk.findall('%strkseg' % namespace):
             segment = []
             for pt in seg:
-                # convert iso 8601 to string sutable for javascript conversion
-                time = iso8601parser.parse(pt.find(time_ns).text).strftime("%Y-%m-%d %H:%M")
+                # convert iso 8601 to string suitable for javascript conversion
+                time = iso8601parser.parse(pt.find(time_ns).text).strftime("%Y-%m-%d %H:%M:%S")
                 point = {
                     'lat': float(pt.attrib['lat']),
                     'lon': float(pt.attrib['lon']),
@@ -90,8 +90,8 @@ def get_start_and_finish_times(tracks):
     finish_time = tracks[-1]['segments'][-1][-1]['time']
 
     # convert strings to datetimes
-    start_time = datetime.strptime(start_time, "%Y-%m-%d %H:%M")
-    finish_time = datetime.strptime(finish_time, "%Y-%m-%d %H:%M")
+    start_time = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
+    finish_time = datetime.strptime(finish_time, "%Y-%m-%d %H:%M:%S")
 
     # add timezone information (gpx files use UTC)
     #start_time = start_time.replace(tzinfo='UTC')

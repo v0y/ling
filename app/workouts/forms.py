@@ -60,3 +60,5 @@ class WorkoutForm(ModelForm, RouteIdMixin):
         # get route and assign it to workout
         self.assign_route_to_workout(workout)
 
+        return workout
+

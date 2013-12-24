@@ -4,13 +4,12 @@ from datetime import datetime
 
 from django import forms
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django.forms.models import ModelForm
 
 from app.routes.forms import RouteIdMixin
 from .models import Workout
 
 
-class WorkoutForm(ModelForm, RouteIdMixin):
+class WorkoutForm(RouteIdMixin):
     notes = forms.CharField(
         widget=forms.widgets.Textarea, label=u"Notatki", required=False)
     datetime_start = forms.DateField(label=u"Data", input_formats=['%d-%m-%Y'])
@@ -23,7 +22,6 @@ class WorkoutForm(ModelForm, RouteIdMixin):
     duration_secs = forms.IntegerField(
         validators=[MinValueValidator(0), MaxValueValidator(59)], initial=0,
         required=False)
-    route_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
 
     class Meta:
         button_text = u"Zapisz"

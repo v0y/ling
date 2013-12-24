@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from datetime import datetime
+from datetime import datetime, timedelta, tzinfo
 import math
 from xml.etree.cElementTree import parse
 
@@ -94,8 +94,8 @@ def get_start_and_finish_times(tracks):
     finish_time = datetime.strptime(finish_time, "%Y-%m-%d %H:%M:%S")
 
     # add timezone information (gpx files use UTC)
-    #start_time = start_time.replace(tzinfo='UTC')
-    #finish_time = finish_time.replace(tzinfo='UTC')
+    start_time = start_time.replace(tzinfo=utc)
+    finish_time = finish_time.replace(tzinfo=utc)
 
     return start_time, finish_time
 
@@ -113,3 +113,17 @@ def get_distance(point1, point2):
 
 def deg2rad(deg):
     return deg * (math.pi/180)
+
+
+# A UTC class.
+class UTC(tzinfo):
+    def utcoffset(self, dt):
+        return timedelta(0)
+
+    def tzname(self, dt):
+        return "UTC"
+
+    def dst(self, dt):
+        return timedelta(0)
+
+utc = UTC()

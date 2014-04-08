@@ -1,3 +1,5 @@
+[![Build Status](https://drone.io/github.com/v0y/sport-tracker-with-acziwments/status.png)](https://drone.io/github.com/v0y/sport-tracker-with-acziwments/latest)
+
 Sports tracker with achievements
 ================================
 

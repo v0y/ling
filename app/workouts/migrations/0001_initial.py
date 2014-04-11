@@ -8,6 +8,27 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # Adding model 'BestTime'
+        db.create_table(u'workouts_besttime', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('distance', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['workouts.Distance'])),
+            ('workout', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['workouts.Workout'])),
+            ('unit', self.gf('django.db.models.fields.CharField')(max_length=2)),
+            ('duration', self.gf('timedelta.fields.TimedeltaField')()),
+        ))
+        db.send_create_signal(u'workouts', ['BestTime'])
+
+        # Adding model 'Distance'
+        db.create_table(u'workouts_distance', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('unit', self.gf('django.db.models.fields.CharField')(max_length=2)),
+            ('distance', self.gf('django.db.models.fields.FloatField')()),
+        ))
+        db.send_create_signal(u'workouts', ['Distance'])
+
+        # Adding unique constraint on 'Distance', fields ['distance', 'unit']
+        db.create_unique(u'workouts_distance', ['distance', 'unit'])
+
         # Adding model 'Sport'
         db.create_table(u'workouts_sport', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -33,6 +54,15 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
+        # Removing unique constraint on 'Distance', fields ['distance', 'unit']
+        db.delete_unique(u'workouts_distance', ['distance', 'unit'])
+
+        # Deleting model 'BestTime'
+        db.delete_table(u'workouts_besttime')
+
+        # Deleting model 'Distance'
+        db.delete_table(u'workouts_distance')
+
         # Deleting model 'Sport'
         db.delete_table(u'workouts_sport')
 
@@ -76,6 +106,20 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
+        },
+        u'workouts.besttime': {
+            'Meta': {'object_name': 'BestTime'},
+            'distance': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['workouts.Distance']"}),
+            'duration': ('timedelta.fields.TimedeltaField', [], {}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'unit': ('django.db.models.fields.CharField', [], {'max_length': '2'}),
+            'workout': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['workouts.Workout']"})
+        },
+        u'workouts.distance': {
+            'Meta': {'unique_together': "(('distance', 'unit'),)", 'object_name': 'Distance'},
+            'distance': ('django.db.models.fields.FloatField', [], {}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'unit': ('django.db.models.fields.CharField', [], {'max_length': '2'})
         },
         u'workouts.sport': {
             'Meta': {'object_name': 'Sport'},

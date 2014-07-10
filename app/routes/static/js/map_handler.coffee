@@ -3,6 +3,7 @@
 ###############################################################################
 
 class MapHandler
+    mode: 'gpx'
     map: null
     routes: []
 
@@ -12,7 +13,6 @@ class MapHandler
             zoom: 3,
             mapTypeId: google.maps.MapTypeId.ROADMAP
         }
-
         @map = new google.maps.Map($("#map-canvas")[0], mapOptions)
 
     addRoute: (routeJson) ->
@@ -48,6 +48,28 @@ class MapHandler
         durationSeconds = @endTime.diff(@startTime, 'seconds')
         @duration = moment.duration(durationSeconds, 'seconds')
 
+    toggleManualRouteDrawing: ->
+        switch @mode
+            when 'gpx' then @initializeManualRouteHandling()
+            when 'manual' then @finishManualRouteHandling()
+
+    initializeManualRouteHandling: ->
+        # clear existing routes (revert if possible)
+        @clearRoutes()
+
+        if not @manualRouteHandler
+            @manualRouteHandler = new ManualRouteHandler()
+            console.log(@manualRouteHandler)
+            @manualRouteHandler.map = @map
+            @manualRouteHandler.initialize()
+
+        @manualRouteHandler.turnOn()
+        console.log("<<< - - - >>>")
+
+    finishManualRouteHandling: ->
+        @manualRouteHandler.turnOff()
+        console.log('clearManualRouteHandling')
+
 ###############################################################################
 # Route Class
 ###############################################################################
@@ -62,8 +84,8 @@ class Route
     distance: 0
     fullKmSectionsList: []
 
-    startMarker: null
-    finishMarker: null
+    startMarker: null;
+    finishMarker: null;
     fullKmMarkers: []
 
     draw: ->
@@ -202,6 +224,132 @@ class Route
 
                 @fullKmMarkers.push(marker)
                 markerCounter += 1
+
+
+###############################################################################
+# Manual route handler
+###############################################################################
+
+class ManualRouteHandler
+    map: null;
+    route: null;
+    markers: [];
+
+    @directionsService: null;
+    @directionsDisplay: null;
+
+    staraightRoutePolyline: null;
+
+    messageAreaSelector: '.js-message-area'
+
+    initialize: ->
+        @directionsService = new google.maps.DirectionsService();
+        @directionsDisplay = new google.maps.DirectionsRenderer({draggable:true})
+        @directionsDisplay.setMap(@map)
+        # tu skończyłem
+
+    turnOn: ->
+        # show buttons
+        # show message area
+        # allow drawing on the map
+
+        # bind to map on click event
+        _this = @
+        @mapListenerHandle = google.maps.event.addListener(@map, 'click', (point) ->
+            # add marker to map
+            marker = new google.maps.Marker({
+                position: point.latLng,
+                map: _this.map,
+                draggable:true,
+            });
+            # add marker to list of markers
+            _this.markers.push(marker)
+            # bind to marker events
+            # right click removes marker
+            google.maps.event.addListener(marker, 'rightclick', ->
+                marker.setMap(null)
+                for i in [0 .. _this.markers.length]
+                    if marker == _this.markers[i]
+                        _this.markers.splice(i, 1)
+                        break
+                _this.drawStraightLinesRoute()
+            )
+            # marker drag re-renders route
+            google.maps.event.addListener(marker, 'drag', ->
+                _this.drawStraightLinesRoute()
+            )
+
+            # get route
+            _this.extendRoute()
+        )
+
+        # bind to map marker drag event
+
+    turnOff: ->
+        # disallow drawing
+        # unbind map onclick event
+        google.maps.event.removeListener(@mapListenerHandle)
+        # unbind marker events
+
+    addMarker: ->
+        null
+
+    extendRoute: ->
+        console.log('extendRoute')
+        console.log(@markers)
+        markersLen = @markers.length
+        if markersLen < 2
+            return
+
+        @drawStraightLinesRoute()
+
+    drawStraightLinesRoute: ->
+        # remove previous polyline
+        if @staraightRoutePolyline
+            @staraightRoutePolyline.setMap(null)
+
+        # get path from markers
+        path = []
+        for marker in @markers
+            path.push(marker.position)
+
+        # draw a polyline between all markers on the map
+        @staraightRoutePolyline = new google.maps.Polyline({
+            path: path,
+            geodesic: true,
+            strokeColor: '#FF0000',
+            strokeOpacity: 1.0,
+            strokeWeight: 2
+        });
+
+        @staraightRoutePolyline.setMap(@map);
+
+
+
+    routeFromGoogle: ->
+        # extend the road to the last marker
+        request = {
+            origin: @markers[markersLen - 2].position,
+            destination: @markers[markersLen - 1].position,
+            travelMode: google.maps.TravelMode.WALKING, # BICYCLING
+            #unitSystem: UnitSystem.METRIC, # IMPERIAL
+            #waypoints[]: DirectionsWaypoint,
+            optimizeWaypoints: false,
+            provideRouteAlternatives: false,
+            region: 'pl'
+        }
+
+        _this = @
+        console.log([@, 'this'])
+        @directionsService.route(request, (response, status) ->
+            if status == google.maps.DirectionsStatus.OK
+                # var warnings = document.getElementById("warnings_panel");
+                # warnings.innerHTML = "" + response.routes[0].warnings + "";
+                #_this.directionsDisplay.setDirections(response);
+                console.log(response)
+                # showSteps(response);
+        );
+
 
 
 ###############################################################################

@@ -256,28 +256,8 @@ class ManualRouteHandler
         # bind to map on click event
         _this = @
         @mapListenerHandle = google.maps.event.addListener(@map, 'click', (point) ->
-            # add marker to map
-            marker = new google.maps.Marker({
-                position: point.latLng,
-                map: _this.map,
-                draggable:true,
-            });
-            # add marker to list of markers
-            _this.markers.push(marker)
-            # bind to marker events
-            # right click removes marker
-            google.maps.event.addListener(marker, 'rightclick', ->
-                marker.setMap(null)
-                for i in [0 .. _this.markers.length]
-                    if marker == _this.markers[i]
-                        _this.markers.splice(i, 1)
-                        break
-                _this.drawStraightLinesRoute()
-            )
-            # marker drag re-renders route
-            google.maps.event.addListener(marker, 'drag', ->
-                _this.drawStraightLinesRoute()
-            )
+            # add new marker to map
+            _this.addMarker(point)
 
             # get route
             _this.extendRoute()
@@ -291,12 +271,37 @@ class ManualRouteHandler
         google.maps.event.removeListener(@mapListenerHandle)
         # unbind marker events
 
-    addMarker: ->
-        null
+    addMarker: (point, position) ->
+        _this = @
+        marker = new google.maps.Marker({
+            position: point.latLng,
+            map: _this.map,
+            draggable:true,
+        });
+
+        # add marker to list of markers
+        if position
+            _this.markers.splice(position, 0, marker)
+        else
+            _this.markers.push(marker)
+
+        # bind to marker events
+        # right click removes marker
+        google.maps.event.addListener(marker, 'rightclick', ->
+            marker.setMap(null)
+            for i in [0 .. _this.markers.length]
+                if marker == _this.markers[i]
+                    _this.markers.splice(i, 1)
+                    break
+            _this.drawStraightLinesRoute()
+        )
+
+        # marker drag re-renders route
+        google.maps.event.addListener(marker, 'drag', ->
+            _this.drawStraightLinesRoute()
+        )
 
     extendRoute: ->
-        console.log('extendRoute')
-        console.log(@markers)
         markersLen = @markers.length
         if markersLen < 2
             return
@@ -321,6 +326,19 @@ class ManualRouteHandler
             strokeOpacity: 1.0,
             strokeWeight: 2
         });
+
+        # bind click on polyline
+        _this = @
+        google.maps.event.addListener(@staraightRoutePolyline, 'click', (point) ->
+            # try to determin between witch two markers the line was clicked
+            # how the fuck? - shortest path !
+            position = getPositionOnShortestPath(_this.markers, point)
+            console.log(['position', position])
+
+            # create new marker and put it into markers list
+            _this.addMarker(point, position)
+            _this.extendRoute()
+        )
 
         @staraightRoutePolyline.setMap(@map);
 
@@ -395,6 +413,26 @@ get2PointsDistance = (pt1, pt2) ->
     return getDistanceFromLatLonInKm(pt1['lat'], pt1['lon'], pt2['lat'], pt2['lon'])
 
 
+get2MarkersDistance = (mark1, mark2) ->
+    pt1 = {'lat': mark1.position.lat(), 'lon': mark1.position.lng()}
+    pt2 = {'lat': mark2.position.lat(), 'lon': mark2.position.lng()}
+    return get2PointsDistance(pt1, pt2)
+
+
+getPointToMarkerDistance = (obj1, obj2) ->
+    if obj1.position?  # this is probably a marker
+        pt1 = {'lat': obj1.position.lat(), 'lon': obj1.position.lng()}
+    else  # this is probably a point
+        pt1 = {'lat': obj1.latLng.lat(), 'lon': obj1.latLng.lng()}
+
+    if obj2.position?  # this is probably a marker
+        pt2 = {'lat': obj2.position.lat(), 'lon': obj2.position.lng()}
+    else  # this is probably a point
+        pt2 = {'lat': obj2.latLng.lat(), 'lon': obj2.latLng.lng()}
+
+    return get2PointsDistance(pt1, pt2)
+
+
 getDistanceFromLatLonInKm = (lat1, lon1, lat2, lon2) ->
     R = 6371 # Radius of the earth in km
     dlat = deg2rad(lat2-lat1)
@@ -409,6 +447,23 @@ getDistanceFromLatLonInKm = (lat1, lon1, lat2, lon2) ->
 
 deg2rad = (deg) ->
     return deg * (Math.PI/180)
+
+
+getPositionOnShortestPath = (path, newPoint) ->
+    bestDistance = 1/0
+    position = null;
+    for index in [1 .. path.length - 1]
+        tmpPath = path.slice(0)
+        tmpPath.splice(index, 0, newPoint)
+
+        distance = 0
+        for i in [1 .. tmpPath.length - 2]
+            distance += getPointToMarkerDistance(tmpPath[i-1], tmpPath[i])
+
+        if distance < bestDistance
+            bestDistance = distance
+            position = index
+    return position
 
 
 getPointOnSection = (section, pt1ToFullKmDistance, ithKilometer) ->

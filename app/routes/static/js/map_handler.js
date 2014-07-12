@@ -337,8 +337,6 @@
 
     ManualRouteHandler.prototype.extendRoute = function() {
       var markersLen;
-      console.log('extendRoute');
-      console.log(this.markers);
       markersLen = this.markers.length;
       if (markersLen < 2) {
         return;
@@ -369,7 +367,6 @@
         var position;
         position = getPositionOnShortestPath(_this.markers, point);
         console.log(['position', position]);
-        console.log([point, _this.staraightRoutePolyline]);
         _this.addMarker(point, position);
         return _this.extendRoute();
       });
@@ -449,7 +446,6 @@
 
   getPointToMarkerDistance = function(obj1, obj2) {
     var pt1, pt2;
-    console.log([obj1, obj2, obj1.position, obj1.position != null]);
     if (obj1.position != null) {
       pt1 = {
         'lat': obj1.position.lat(),
@@ -492,19 +488,15 @@
 
   getPositionOnShortestPath = function(path, newPoint) {
     var bestDistance, distance, i, index, position, tmpPath, _i, _j, _ref, _ref1;
-    console.log(['newMarker', newPoint]);
     bestDistance = 1 / 0;
     position = null;
     for (index = _i = 1, _ref = path.length - 1; 1 <= _ref ? _i <= _ref : _i >= _ref; index = 1 <= _ref ? ++_i : --_i) {
-      console.log(['index', index]);
       tmpPath = path.slice(0);
       tmpPath.splice(index, 0, newPoint);
       distance = 0;
       for (i = _j = 1, _ref1 = tmpPath.length - 2; 1 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 1 <= _ref1 ? ++_j : --_j) {
-        console.log(['i', i - 1, i]);
         distance += getPointToMarkerDistance(tmpPath[i - 1], tmpPath[i]);
       }
-      console.log([distance, bestDistance, distance < bestDistance]);
       if (distance < bestDistance) {
         bestDistance = distance;
         position = index;

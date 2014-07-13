@@ -10,6 +10,10 @@
 
     MapHandler.prototype.routes = [];
 
+    MapHandler.prototype.activeRoute = null;
+
+    MapHandler.prototype.directionsService = null;
+
     MapHandler.prototype.initializeMap = function() {
       var mapOptions;
       mapOptions = {
@@ -20,14 +24,29 @@
       return this.map = new google.maps.Map($("#map-canvas")[0], mapOptions);
     };
 
-    MapHandler.prototype.addRoute = function(routeJson) {
+    MapHandler.prototype.addRoute = function(isManual) {
       var route;
       route = new Route();
-      route.tracks = routeJson;
       route.map = this.map;
-      route.draw();
+      if (isManual) {
+        route.isManual = true;
+      }
       this.routes.push(route);
+      this.activeRoute = route;
+      return route;
+    };
+
+    MapHandler.prototype.addRouteFromJson = function(routeJson) {
+      var route;
+      route = this.addRoute();
+      route.tracks = routeJson;
+      route.draw();
       return this.getDistanceAndTimes();
+    };
+
+    MapHandler.prototype.addManualRoute = function() {
+      var route;
+      return route = this.addRoute();
     };
 
     MapHandler.prototype.clearRoutes = function() {
@@ -43,7 +62,7 @@
 
     MapHandler.prototype.singleNewRoute = function(routeJson) {
       this.clearRoutes();
-      return this.addRoute(routeJson);
+      return this.addRouteFromJson(routeJson);
     };
 
     MapHandler.prototype.getDistanceAndTimes = function() {
@@ -76,20 +95,20 @@
     };
 
     MapHandler.prototype.initializeManualRouteHandling = function() {
+      var route;
       this.clearRoutes();
-      if (!this.manualRouteHandler) {
-        this.manualRouteHandler = new ManualRouteHandler();
-        console.log(this.manualRouteHandler);
-        this.manualRouteHandler.map = this.map;
-        this.manualRouteHandler.initialize();
+      if (!this.directionsService) {
+        this.directionsService = new google.maps.DirectionsService();
       }
-      this.manualRouteHandler.turnOn();
+      route = this.addRoute(true);
+      route.directionsService = this.directionsService;
+      route.initializeMapBindings();
       return console.log("<<< - - - >>>");
     };
 
     MapHandler.prototype.finishManualRouteHandling = function() {
-      this.manualRouteHandler.turnOff();
-      return console.log('clearManualRouteHandling');
+      console.log('clearManualRouteHandling');
+      return this.activeRoute.removeMapBindings();
     };
 
     return MapHandler;
@@ -102,6 +121,8 @@
     Route.prototype.map = null;
 
     Route.prototype.tracks = null;
+
+    Route.prototype.isManual = false;
 
     Route.prototype.polylines = [];
 
@@ -264,6 +285,105 @@
       return _results;
     };
 
+    Route.prototype.markers = [];
+
+    Route.prototype.polyline = null;
+
+    Route.prototype.directionsService = null;
+
+    Route.prototype.mapEventHandles = [];
+
+    Route.prototype.initializeMapBindings = function() {
+      var mapListenerHandle, _this;
+      _this = this;
+      mapListenerHandle = google.maps.event.addListener(this.map, 'click', function(point) {
+        return _this.addMarker(point);
+      });
+      return this.mapEventHandles.push(mapListenerHandle);
+    };
+
+    Route.prototype.removeMapBindings = function() {
+      var handle, _i, _len, _ref, _results;
+      _ref = this.mapEventHandles;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        handle = _ref[_i];
+        _results.push(google.maps.event.removeListener(handle));
+      }
+      return _results;
+    };
+
+    Route.prototype.addMarker = function(point, position) {
+      var marker, _this;
+      _this = this;
+      marker = new google.maps.Marker({
+        position: point.latLng,
+        map: _this.map,
+        draggable: true
+      });
+      if (position) {
+        _this.markers.splice(position, 0, marker);
+      } else {
+        _this.markers.push(marker);
+      }
+      this.addSimpleManualRouteMarker(marker);
+      return this.drawManualRoute();
+    };
+
+    Route.prototype.addSimpleManualRouteMarker = function(marker) {
+      var handle, _this;
+      _this = this;
+      handle = google.maps.event.addListener(marker, 'rightclick', function() {
+        var i, _i, _ref;
+        marker.setMap(null);
+        for (i = _i = 0, _ref = _this.markers.length; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+          if (marker === _this.markers[i]) {
+            _this.markers.splice(i, 1);
+            break;
+          }
+        }
+        return _this.drawManualRoute();
+      });
+      this.mapEventHandles.push(handle);
+      handle = google.maps.event.addListener(marker, 'drag', function() {
+        return _this.drawManualRoute();
+      });
+      return this.mapEventHandles.push(handle);
+    };
+
+    Route.prototype.addGoogleDirectionsRouteMarker = function(point, position) {
+      return null;
+    };
+
+    Route.prototype.drawManualRoute = function() {
+      var handle, marker, path, _i, _len, _ref, _this;
+      if (this.polyline) {
+        this.polyline.setMap(null);
+      }
+      path = [];
+      _ref = this.markers;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        marker = _ref[_i];
+        path.push(marker.position);
+      }
+      this.polyline = new google.maps.Polyline({
+        path: path,
+        geodesic: true,
+        strokeColor: '#FF0000',
+        strokeOpacity: 1.0,
+        strokeWeight: 2
+      });
+      _this = this;
+      handle = google.maps.event.addListener(this.polyline, 'click', function(point) {
+        var position;
+        position = getPositionOnShortestPath(_this.markers, point);
+        console.log(['position', position]);
+        return _this.addMarker(point, position);
+      });
+      this.mapEventHandles.push(handle);
+      return this.polyline.setMap(this.map);
+    };
+
     return Route;
 
   })();
@@ -273,9 +393,9 @@
 
     ManualRouteHandler.prototype.map = null;
 
-    ManualRouteHandler.prototype.route = null;
+    ManualRouteHandler.prototype.routes = [];
 
-    ManualRouteHandler.prototype.markers = [];
+    ManualRouteHandler.prototype.activeRoute = null;
 
     ManualRouteHandler.directionsService = null;
 
@@ -297,8 +417,10 @@
       var _this;
       _this = this;
       return this.mapListenerHandle = google.maps.event.addListener(this.map, 'click', function(point) {
-        _this.addMarker(point);
-        return _this.extendRoute();
+        if (!_this.activeRoute) {
+          _this.addRoute();
+        }
+        return _this.activeRoute.addMarker(point);
       });
     };
 
@@ -306,33 +428,12 @@
       return google.maps.event.removeListener(this.mapListenerHandle);
     };
 
-    ManualRouteHandler.prototype.addMarker = function(point, position) {
-      var marker, _this;
-      _this = this;
-      marker = new google.maps.Marker({
-        position: point.latLng,
-        map: _this.map,
-        draggable: true
-      });
-      if (position) {
-        _this.markers.splice(position, 0, marker);
-      } else {
-        _this.markers.push(marker);
-      }
-      google.maps.event.addListener(marker, 'rightclick', function() {
-        var i, _i, _ref;
-        marker.setMap(null);
-        for (i = _i = 0, _ref = _this.markers.length; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
-          if (marker === _this.markers[i]) {
-            _this.markers.splice(i, 1);
-            break;
-          }
-        }
-        return _this.drawStraightLinesRoute();
-      });
-      return google.maps.event.addListener(marker, 'drag', function() {
-        return _this.drawStraightLinesRoute();
-      });
+    ManualRouteHandler.prototype.addRoute = function() {
+      var route;
+      route = new Route();
+      route.map = this.map;
+      this.activeRoute = route;
+      return this.routes.push(route);
     };
 
     ManualRouteHandler.prototype.extendRoute = function() {

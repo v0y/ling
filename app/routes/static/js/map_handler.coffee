@@ -140,7 +140,7 @@ class Route
         for track in @tracks
             trackMapPoints = []
             for segment in track['segments']
-                # get googl map points array
+                # get google map points array
                 segmentMapPoints = []
                 for point in segment
                     pt = new google.maps.LatLng(point['lat'], point['lon'])
@@ -337,9 +337,15 @@ class Route
         )
         @mapEventHandles.push(handle)
 
+        # bind to marker drag with delay
+        delay = 1000
+        scrollTimeoutId = null;
         # marker drag re-renders route
         handle = google.maps.event.addListener(marker, 'drag', ->
-            _this.drawManualRoute()
+            clearTimeout(scrollTimeoutId)
+            scrollTimeoutId = setTimeout(->
+                _this.drawManualRoute()
+            , delay)
         )
         @mapEventHandles.push(handle)
 

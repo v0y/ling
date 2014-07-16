@@ -382,17 +382,20 @@ class Route
         # bind click on polyline
         _this = @
         handle = google.maps.event.addListener(@polyline, 'click', (point) ->
-            # try to determin between witch two markers the line was clicked
-            # how the fuck? - shortest path !
-            position = getPositionOnShortestPath(_this.markers, point)
-            console.log(['position', position])
-
-            # create new marker and put it into markers list
-            _this.addMarker(point, position)
+            _this.polylineClickCalback(point)
         )
         @mapEventHandles.push(handle)
 
         @polyline.setMap(@map);
+
+    polylineClickCalback: (point) ->
+        # try to determin between witch two markers the line was clicked
+        # how the fuck? - shortest path!
+        # this might not work well with google directions
+        position = getPositionOnShortestPath(@.markers, point)
+
+        # create new marker and put it into markers list
+        @.addMarker(point, position)
 
     getGoogleDirections: (mark1, mark2) ->
         # check directionsCache

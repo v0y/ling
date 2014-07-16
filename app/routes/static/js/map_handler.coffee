@@ -447,54 +447,6 @@ class Route
 
 
 ###############################################################################
-# Manual route handler
-###############################################################################
-
-class ManualRouteHandler
-    map: null;
-    routes: [];
-
-    activeRoute: null;
-
-    @directionsService: null;
-    @directionsDisplay: null;
-
-    staraightRoutePolyline: null;
-
-    messageAreaSelector: '.js-message-area'
-
-    initialize: ->
-        @directionsService = new google.maps.DirectionsService();
-        @directionsDisplay = new google.maps.DirectionsRenderer({draggable:true})
-        @directionsDisplay.setMap(@map)
-
-    routeFromGoogle: ->
-        # extend the road to the last marker
-        request = {
-            origin: @markers[markersLen - 2].position,
-            destination: @markers[markersLen - 1].position,
-            travelMode: google.maps.TravelMode.WALKING, # BICYCLING
-            #unitSystem: UnitSystem.METRIC, # IMPERIAL
-            #waypoints[]: DirectionsWaypoint,
-            optimizeWaypoints: false,
-            provideRouteAlternatives: false,
-            region: 'pl'
-        }
-
-        _this = @
-        console.log([@, 'this'])
-        @directionsService.route(request, (response, status) ->
-            if status == google.maps.DirectionsStatus.OK
-                # var warnings = document.getElementById("warnings_panel");
-                # warnings.innerHTML = "" + response.routes[0].warnings + "";
-                #_this.directionsDisplay.setDirections(response);
-                console.log(response)
-                # showSteps(response);
-        );
-
-
-
-###############################################################################
 # Distance calculations
 ###############################################################################
 

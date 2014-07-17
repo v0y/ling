@@ -3,7 +3,7 @@
 ###############################################################################
 
 class MapHandler
-    mode: 'gpx'
+    mode: 'readOnly'
     map: null;
     routes: []
 
@@ -65,8 +65,8 @@ class MapHandler
 
     toggleManualRouteDrawing: ->
         switch @mode
-            when 'gpx' then @initializeManualRouteHandling()
-            when 'manual' then @finishManualRouteHandling()
+            when 'readOnly' then @initializeManualRouteHandling()
+            when 'edit' then @finishManualRouteHandling()
 
     initializeManualRouteHandling: ->
         # clear existing routes (revert if possible)
@@ -85,7 +85,8 @@ class MapHandler
         # initialize route to map bindings
         route.initializeMapBindings()
 
-        console.log("<<< - - - >>>")
+        # update handler mode
+        @mode = 'edit'
 
     finishManualRouteHandling: ->
         console.log('clearManualRouteHandling')
@@ -93,7 +94,13 @@ class MapHandler
         # unbind route to map events
         @activeRoute.removeMapBindings()
 
+        # make markers undragable
+        @activeRoute.makeMarkersUnDragable()
+
         # save actie route
+
+        # update handler mode
+        @mode = 'readOnly'
 
 ###############################################################################
 # Route Class
@@ -444,6 +451,10 @@ class Route
             path.push(point)
 
         return path
+
+    makeMarkersUnDragable: () ->
+        for marker in @markers
+            marker.setDraggable(false)
 
 
 ###############################################################################

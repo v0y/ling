@@ -290,6 +290,10 @@ class Route
             position: point.latLng,
             map: _this.map,
             draggable:true,
+            icon: {
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 5
+            }
         });
 
         # add marker to list of markers

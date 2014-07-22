@@ -323,7 +323,11 @@
       marker = new google.maps.Marker({
         position: point.latLng,
         map: _this.map,
-        draggable: true
+        draggable: true,
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 5
+        }
       });
       if (position) {
         _this.markers.splice(position, 0, marker);

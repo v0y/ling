@@ -346,7 +346,7 @@
         return _this.drawManualRoute();
       });
       this.mapEventHandles.push(handle);
-      this.addGoogleDirectionsRouteMarker(marker);
+      this.addSimpleManualRouteMarker(marker);
       return this.drawManualRoute();
     };
 
@@ -377,8 +377,9 @@
 
     Route.prototype.drawManualRoute = function() {
       var googlePath, handle, i, marker, nextMarker, path, prevMarker, _i, _len, _ref, _this;
-      if (this.polyline) {
-        this.polyline.setMap(null);
+      if (this.activePolyline) {
+        this.activePolyline.setMap(null);
+        this.polylines.pop();
       }
       path = [];
       i = 0;
@@ -399,7 +400,7 @@
         }
         i += 1;
       }
-      this.polyline = new google.maps.Polyline({
+      this.activePolyline = new google.maps.Polyline({
         path: path,
         geodesic: true,
         strokeColor: '#FF0000',
@@ -407,11 +408,12 @@
         strokeWeight: 2
       });
       _this = this;
-      handle = google.maps.event.addListener(this.polyline, 'click', function(point) {
+      handle = google.maps.event.addListener(this.activePolyline, 'click', function(point) {
         return _this.polylineClickCalback(point);
       });
       this.mapEventHandles.push(handle);
-      return this.polyline.setMap(this.map);
+      this.activePolyline.setMap(this.map);
+      return this.polylines.push(this.activePolyline);
     };
 
     Route.prototype.polylineClickCalback = function(point) {

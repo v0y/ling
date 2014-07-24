@@ -314,8 +314,8 @@ class Route
         @mapEventHandles.push(handle)
 
         # TODO: check if should use google directions
-        #@addSimpleManualRouteMarker(marker)
-        @addGoogleDirectionsRouteMarker(marker)
+        @addSimpleManualRouteMarker(marker)
+        #@addGoogleDirectionsRouteMarker(marker)
 
         @drawManualRoute()
 
@@ -351,8 +351,9 @@ class Route
 
     drawManualRoute: ->
         # remove previous polyline
-        if @polyline
-            @polyline.setMap(null)
+        if @activePolyline
+            @activePolyline.setMap(null)
+            @polylines.pop()
 
         # update tracks
         # get path from markers
@@ -374,7 +375,7 @@ class Route
 
         # draw tracks
         # draw a polyline between all markers on the map
-        @polyline = new google.maps.Polyline({
+        @activePolyline = new google.maps.Polyline({
             path: path,
             geodesic: true,
             strokeColor: '#FF0000',
@@ -384,12 +385,13 @@ class Route
 
         # bind click on polyline
         _this = @
-        handle = google.maps.event.addListener(@polyline, 'click', (point) ->
+        handle = google.maps.event.addListener(@activePolyline, 'click', (point) ->
             _this.polylineClickCalback(point)
         )
         @mapEventHandles.push(handle)
 
-        @polyline.setMap(@map);
+        @activePolyline.setMap(@map)
+        @polylines.push(@activePolyline)
 
     polylineClickCalback: (point) ->
         # try to determin between witch two markers the line was clicked
@@ -489,15 +491,15 @@ class Route
 # Distance calculations
 ###############################################################################
 
-getTotalDistance = (routes) ->
+getTotalDistance = (tracks) ->
     distance = 0
 
     # get sections for kilometer markers
     fullKmSectionsList = []
     fullKmDistance = 0
 
-    for route in routes
-        for segment in route['segments']
+    for track in tracks
+        for segment in track['segments']
             for i in [1..segment.length - 1]
                 # calculate section length
                 pt1 = segment[i-1]

@@ -124,12 +124,16 @@ class Route
     finishMarker: null;
     fullKmMarkers: []
 
+    @latlngbounds: null;
+
     draw: ->
         @drawTracks()
         @addStartFinishMarkers()
         fullKmSectionsList = @getRouteDistance()
         @drawFullKmMarkers(fullKmSectionsList)
         @getStartFinishTimes()
+        # center / zoom map
+        @map.fitBounds(@latlngbounds)
 
     clear: ->
         for marker in @fullKmMarkers
@@ -143,7 +147,7 @@ class Route
 
     drawTracks: ->
         # object for handling initial map zoom level and center
-        latlngbounds = new google.maps.LatLngBounds()
+        @latlngbounds = new google.maps.LatLngBounds()
 
         # add points to map
         for track in @tracks
@@ -173,9 +177,6 @@ class Route
                 trackMapPoints.push(segmentMapPoints)
 
             @mapPoints.push(trackMapPoints)
-
-        # center / zoom map
-        @map.fitBounds(latlngbounds)
 
     addStartFinishMarkers: ->
         # start marker

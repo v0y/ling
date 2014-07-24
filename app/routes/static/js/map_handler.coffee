@@ -357,6 +357,9 @@ class Route
             @activePolyline.setMap(null)
             @polylines.pop()
 
+        # escape early if there aren't enough markers to draw anything
+        if @markers.length < 2
+            return
 
         # update tracks
         path = @markersToTracks()

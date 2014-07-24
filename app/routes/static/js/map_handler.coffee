@@ -145,6 +145,8 @@ class Route
         for polyline in @polylines
             polyline.setMap(null)
 
+        @polylines = []
+
     drawTracks: ->
         # object for handling initial map zoom level and center
         @latlngbounds = new google.maps.LatLngBounds()

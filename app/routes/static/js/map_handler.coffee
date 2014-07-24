@@ -317,8 +317,8 @@ class Route
         @mapEventHandles.push(handle)
 
         # TODO: check if should use google directions
-        @addSimpleManualRouteMarker(marker)
-        #@addGoogleDirectionsRouteMarker(marker)
+        #@addSimpleManualRouteMarker(marker)
+        @addGoogleDirectionsRouteMarker(marker)
 
         @drawManualRoute()
 

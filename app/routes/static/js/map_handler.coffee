@@ -160,7 +160,7 @@ class Route
                 for point in segment
                     pt = new google.maps.LatLng(point['lat'], point['lon'])
                     segmentMapPoints.push(pt)
-                    latlngbounds.extend(pt)
+                    @latlngbounds.extend(pt)
 
                 # create new polyline
                 polyline = new google.maps.Polyline({

@@ -139,6 +139,8 @@ class Route
         for marker in @fullKmMarkers
             marker.setMap(null)
 
+        @fullKmMarkers = []
+
         @startMarker.setMap(null)
         @finishMarker.setMap(null)
 

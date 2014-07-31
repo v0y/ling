@@ -111,6 +111,36 @@ bindManualRouteSwitch = (mapHandler) ->
         mapHandler.toggleManualRouteDrawing()
     )
 
+bindSaveManualRoute = (mapHandler) ->
+    $saveRouteButton = $('#manual-route-save')
+
+    $saveRouteButton.on('click', ->
+        routeData = mapHandler.getRouteDataFromMap()
+
+        data = {
+            'tracks': JSON.stringify(routeData),
+            'csrfmiddlewaretoken': $.cookie('csrftoken')
+        }
+
+        $.ajax({
+            url: $saveRouteButton.data('url'),
+            data: data
+            dataType: "json",
+            type: "POST",
+            timeout: 5000,
+            success: (data, textStatus, jqXHR) ->
+                routeId = data['id']
+                routes = JSON.parse(data['tracks'])
+                # display new route
+                handleNewRoute(mapHandler, routes)
+                # fill form fields
+                fillFormFields(routeId, mapHandler)
+            ,
+            error: (jqXHR, textStatus, errorThrown) ->
+                alert("Ups...\nNie udało się zapisać trasy.\n#{textStatus} - #{errorThrown}")
+        })
+    )
+
 ###############################################################################
 # Run
 ###############################################################################
@@ -123,8 +153,10 @@ main = ->
         # bind to form file input change event
         bindToFileInputChange(mapHandler)
 
-        # bind drawing on map initialization
+        # bind drawing on map initialization...
         bindManualRouteSwitch(mapHandler)
+        # ...and route save.
+        bindSaveManualRoute(mapHandler)
 
         # if map canvas has a route-id data, then get that route with AJAX
         routeId = mapCanvas.data('route-id')

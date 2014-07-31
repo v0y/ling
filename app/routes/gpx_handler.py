@@ -61,8 +61,7 @@ def gpx_to_tracks(gpx_file):
     return tracks
 
 
-def get_segment_dist_and_ele(
-        segment, round_distance_to=False):
+def get_segment_dist_and_ele(segment, round_distance_to=False):
     distance = 0
     delta_elevation_up = 0
     delta_elevation_down = 0

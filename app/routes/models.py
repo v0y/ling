@@ -55,6 +55,18 @@ class Route(CreatedAtMixin):
 
         return route.id, tracks_json
 
+    @classmethod
+    def save_route(cls, route_data, request):
+        input_dct = {
+            'user': request.user,
+            'tracks_json': route_data,
+        }
+
+        route = cls.objects.create(**input_dct)
+
+        return route.id, route_data
+
+
     def best_time_for_x_km(self, distance):
         """
         Get best time on x km

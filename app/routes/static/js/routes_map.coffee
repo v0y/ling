@@ -70,6 +70,9 @@ fillFormFields = (routeId, mapHandler) ->
     $('#id_route_id').val(routeId)
     # distance
     $('#id_distance').val(mapHandler.distance.toFixed(2))
+    # manual routes will not have times
+    if not mapHandler.startTime
+        return
     # adjust start time according to timezone
     startTime = moment.tz(mapHandler.startTime._d, "Europe/Warsaw")
     startTime.add('minutes', -startTime.zone())

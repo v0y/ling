@@ -436,13 +436,14 @@ class Route
         if path
             return path
 
+        # get travel mode from controls
+        travelMode = @controls.travelModeControl.find(":selected").val()
+
         # prepare request
         request = {
             origin: mark1.position,
             destination: mark2.position,
-            travelMode: google.maps.TravelMode.WALKING, # BICYCLING
-            #unitSystem: UnitSystem.METRIC, # IMPERIAL
-            #waypoints[]: DirectionsWaypoint,
+            travelMode: google.maps.TravelMode[travelMode]
             optimizeWaypoints: false,
             provideRouteAlternatives: false,
             region: 'pl'
@@ -464,6 +465,9 @@ class Route
         _this = @
         @directionsService.route(request, (response, status) ->
             # TODO - fallback
+            console.log(response)
+            console.log(status)
+
             if status == google.maps.DirectionsStatus.OK
                 # var warnings = document.getElementById("warnings_panel");
                 # warnings.innerHTML = "" + response.routes[0].warnings + "";

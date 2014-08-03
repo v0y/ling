@@ -454,16 +454,17 @@
     };
 
     Route.prototype.getGoogleDirections = function(mark1, mark2, mark3) {
-      var cacheKey, cacheKey2, path, path2, request, waypoint, _this;
+      var cacheKey, cacheKey2, path, path2, request, travelMode, waypoint, _this;
       cacheKey = "" + mark1.position.B + ":" + mark1.position.k + "-" + mark2.position.B + ":" + mark2.position.k;
       path = this.directionsCache[cacheKey];
       if (path) {
         return path;
       }
+      travelMode = this.controls.travelModeControl.find(":selected").val();
       request = {
         origin: mark1.position,
         destination: mark2.position,
-        travelMode: google.maps.TravelMode.WALKING,
+        travelMode: google.maps.TravelMode[travelMode],
         optimizeWaypoints: false,
         provideRouteAlternatives: false,
         region: 'pl'
@@ -483,6 +484,8 @@
       _this = this;
       this.directionsService.route(request, function(response, status) {
         var _ref;
+        console.log(response);
+        console.log(status);
         if (status === google.maps.DirectionsStatus.OK) {
           _ref = _this.googleResponceToPath(response), path = _ref[0], path2 = _ref[1];
           _this.directionsCache[cacheKey] = path;

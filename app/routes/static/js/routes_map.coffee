@@ -145,6 +145,20 @@ bindSaveManualRoute = (mapHandler) ->
     )
 
 ###############################################################################
+# Pass iterface controls to map handler
+###############################################################################
+
+setMapHandlerControls = (mapHandler) ->
+    controls = {
+        distanceDisplay: $('#map-total-distance'),
+        useDirectionsControl: $('#use-google-directions'),
+        travelModeControl: $('#travel-mode-select'),
+        googleWarningsDisplay: $('#google-warnings')
+    }
+
+    mapHandler.controls = controls
+
+###############################################################################
 # Run
 ###############################################################################
 
@@ -167,6 +181,8 @@ main = ->
             displayRelatedRoute(routeId, mapCanvas.data('url'), mapHandler)
         else
             mapCanvas.hide()
+
+        setMapHandlerControls(mapHandler)
 
 $ ->
     main()

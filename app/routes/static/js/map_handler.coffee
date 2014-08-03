@@ -11,6 +11,8 @@ class MapHandler
 
     directionsService: null;
 
+    controls: null
+
     initializeMap: ->
         mapOptions = {
             center: new google.maps.LatLng(15, 15),
@@ -22,6 +24,7 @@ class MapHandler
     addRoute: (isManual) ->
         route = new Route()
         route.map = @map
+        route.controls = @controls
         if isManual
             route.isManual = true;
         @routes.push(route)
@@ -143,6 +146,8 @@ class Route
     fullKmMarkers: []
 
     @latlngbounds: null;
+
+    controls: null;
 
     draw: ->
         @drawTracks()

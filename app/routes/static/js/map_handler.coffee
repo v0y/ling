@@ -467,7 +467,6 @@ class Route
         # finaly ask google
         _this = @
         @directionsService.route(request, (response, status) ->
-            # TODO - fallback
             if status == google.maps.DirectionsStatus.OK
                 # write result to local cache
                 [path, path2] = _this.googleResponceToPath(response)
@@ -478,9 +477,19 @@ class Route
 
                 # handle additional response information (google requierment)
                 _this.controls.googleWarningsDisplay.html(response.routes[0].warnings)
+            else if status == google.maps.DirectionsStatus.ZERO_RESULTS
+                # if no path was found, (or something else went wrong)
+                # set marker 2 to use straight lines instead of google
+                # directions
+                mark2.useGoogleDirections = false;
+            else
+                # if no path was found, (or something else went wrong)
+                # set marker 2 to use straight lines instead of google
+                # directions
+                mark2.useGoogleDirections = false;
 
-                # re render path
-                _this.drawManualRoute()
+            # re render path
+            _this.drawManualRoute()
         )
 
         return false;

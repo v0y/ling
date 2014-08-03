@@ -274,6 +274,7 @@
       var distance, fullKmSectionsList, _ref;
       _ref = getTotalDistance(this.tracks), distance = _ref[0], fullKmSectionsList = _ref[1];
       this.distance = distance;
+      this.controls.distanceDisplay.html(distance.toFixed(2));
       return fullKmSectionsList;
     };
 
@@ -484,8 +485,6 @@
       _this = this;
       this.directionsService.route(request, function(response, status) {
         var _ref;
-        console.log(response);
-        console.log(status);
         if (status === google.maps.DirectionsStatus.OK) {
           _ref = _this.googleResponceToPath(response), path = _ref[0], path2 = _ref[1];
           _this.directionsCache[cacheKey] = path;

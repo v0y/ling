@@ -248,6 +248,7 @@ class Route
     getRouteDistance: ->
         [distance, fullKmSectionsList] = getTotalDistance(@tracks)
         @distance = distance
+        @controls.distanceDisplay.html(distance.toFixed(2))
         return fullKmSectionsList
 
     getStartFinishTimes: ->
@@ -465,9 +466,6 @@ class Route
         _this = @
         @directionsService.route(request, (response, status) ->
             # TODO - fallback
-            console.log(response)
-            console.log(status)
-
             if status == google.maps.DirectionsStatus.OK
                 # write result to local cache
                 [path, path2] = _this.googleResponceToPath(response)

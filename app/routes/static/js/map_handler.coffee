@@ -348,9 +348,10 @@ class Route
         )
         @mapEventHandles.push(handle)
 
-        # TODO: check if should use google directions
-        #@addSimpleManualRouteMarker(marker)
-        @addGoogleDirectionsRouteMarker(marker)
+        if @controls.useDirectionsControl.prop('checked')
+            @addGoogleDirectionsRouteMarker(marker)
+        else
+            @addSimpleManualRouteMarker(marker)
 
         @drawManualRoute()
 

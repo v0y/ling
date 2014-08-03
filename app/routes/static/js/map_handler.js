@@ -14,6 +14,8 @@
 
     MapHandler.prototype.directionsService = null;
 
+    MapHandler.prototype.controls = null;
+
     MapHandler.prototype.initializeMap = function() {
       var mapOptions;
       mapOptions = {
@@ -28,6 +30,7 @@
       var route;
       route = new Route();
       route.map = this.map;
+      route.controls = this.controls;
       if (isManual) {
         route.isManual = true;
       }
@@ -164,6 +167,8 @@
     Route.prototype.fullKmMarkers = [];
 
     Route.latlngbounds = null;
+
+    Route.prototype.controls = null;
 
     Route.prototype.draw = function() {
       var fullKmSectionsList;
@@ -381,7 +386,11 @@
         return _this.drawManualRoute();
       });
       this.mapEventHandles.push(handle);
-      this.addGoogleDirectionsRouteMarker(marker);
+      if (this.controls.useDirectionsControl.prop('checked')) {
+        this.addGoogleDirectionsRouteMarker(marker);
+      } else {
+        this.addSimpleManualRouteMarker(marker);
+      }
       return this.drawManualRoute();
     };
 

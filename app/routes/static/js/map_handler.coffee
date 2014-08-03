@@ -92,7 +92,8 @@ class MapHandler
         if not @directionsService
             @directionsService = new google.maps.DirectionsService();
 
-        # TODO show controls
+        # show controls
+        @controls.container.show()
 
         # create new route
         route = @addRoute(true)
@@ -113,6 +114,7 @@ class MapHandler
             @activeRoute.makeMarkersUnDragable()
 
         # hide controls
+        @controls.container.hide()
 
         # update handler mode
         @mode = 'readOnly'

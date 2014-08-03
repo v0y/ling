@@ -116,6 +116,7 @@
       if (!this.directionsService) {
         this.directionsService = new google.maps.DirectionsService();
       }
+      this.controls.container.show();
       route = this.addRoute(true);
       route.directionsService = this.directionsService;
       route.initializeMapBindings();
@@ -127,6 +128,7 @@
         this.activeRoute.removeMapBindings();
         this.activeRoute.makeMarkersUnDragable();
       }
+      this.controls.container.hide();
       return this.mode = 'readOnly';
     };
 

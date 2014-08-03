@@ -150,6 +150,7 @@ bindSaveManualRoute = (mapHandler) ->
 
 setMapHandlerControls = (mapHandler) ->
     controls = {
+        container: $('#map-controls'),
         distanceDisplay: $('#map-total-distance'),
         useDirectionsControl: $('#use-google-directions'),
         travelModeControl: $('#travel-mode-select'),

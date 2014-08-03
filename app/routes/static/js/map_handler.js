@@ -492,6 +492,7 @@
           if (path2) {
             _this.directionsCache[cacheKey2] = path2;
           }
+          _this.controls.googleWarningsDisplay.html(response.routes[0].warnings);
           return _this.drawManualRoute();
         }
       });

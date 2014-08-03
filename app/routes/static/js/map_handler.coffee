@@ -469,8 +469,6 @@ class Route
             console.log(status)
 
             if status == google.maps.DirectionsStatus.OK
-                # var warnings = document.getElementById("warnings_panel");
-                # warnings.innerHTML = "" + response.routes[0].warnings + "";
                 # write result to local cache
                 [path, path2] = _this.googleResponceToPath(response)
                 _this.directionsCache[cacheKey] = path
@@ -478,7 +476,8 @@ class Route
                 if path2
                     _this.directionsCache[cacheKey2] = path2
 
-                # TODO - handle additional response information
+                # handle additional response information (google requierment)
+                _this.controls.googleWarningsDisplay.html(response.routes[0].warnings)
 
                 # re render path
                 _this.drawManualRoute()

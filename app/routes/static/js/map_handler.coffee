@@ -480,8 +480,11 @@ class Route
             else if status == google.maps.DirectionsStatus.ZERO_RESULTS
                 # if no path was found, (or something else went wrong)
                 # set marker 2 to use straight lines instead of google
-                # directions
+                # directions...
                 mark2.useGoogleDirections = false;
+                # ...and tell the user that nothing was found
+                msg = "Nie znaleziono trasy - rysuję linię prostą"
+                _this.controls.googleWarningsDisplay.html(msg)
             else
                 # if no path was found, (or something else went wrong)
                 # set marker 2 to use straight lines instead of google

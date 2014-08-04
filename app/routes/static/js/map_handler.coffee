@@ -167,10 +167,7 @@ class Route
         @map.fitBounds(@latlngbounds)
 
     clear: ->
-        for marker in @fullKmMarkers
-            marker.setMap(null)
-
-        @fullKmMarkers = []
+        @clearFullKmMarkers()
 
         if @startMarker
             @startMarker.setMap(null)
@@ -181,6 +178,12 @@ class Route
             polyline.setMap(null)
 
         @polylines = []
+
+    clearFullKmMarkers: ->
+        for marker in @fullKmMarkers
+            marker.setMap(null)
+
+        @fullKmMarkers = []
 
     drawTracks: ->
         @clear()
@@ -402,6 +405,9 @@ class Route
 
         # escape early if there aren't enough markers to draw anything
         if @markers.length < 2
+            @clearFullKmMarkers()
+            @distance = 0
+            @controls.distanceDisplay.html(@distance.toFixed(2))
             return
 
         # update tracks

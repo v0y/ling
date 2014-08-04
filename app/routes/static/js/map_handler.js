@@ -197,25 +197,30 @@
     };
 
     Route.prototype.clear = function() {
-      var marker, polyline, _i, _j, _len, _len1, _ref, _ref1;
-      _ref = this.fullKmMarkers;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        marker = _ref[_i];
-        marker.setMap(null);
-      }
-      this.fullKmMarkers = [];
+      var polyline, _i, _len, _ref;
+      this.clearFullKmMarkers();
       if (this.startMarker) {
         this.startMarker.setMap(null);
       }
       if (this.finishMarker) {
         this.finishMarker.setMap(null);
       }
-      _ref1 = this.polylines;
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        polyline = _ref1[_j];
+      _ref = this.polylines;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        polyline = _ref[_i];
         polyline.setMap(null);
       }
       return this.polylines = [];
+    };
+
+    Route.prototype.clearFullKmMarkers = function() {
+      var marker, _i, _len, _ref;
+      _ref = this.fullKmMarkers;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        marker = _ref[_i];
+        marker.setMap(null);
+      }
+      return this.fullKmMarkers = [];
     };
 
     Route.prototype.drawTracks = function() {
@@ -444,6 +449,9 @@
         this.polylines.pop();
       }
       if (this.markers.length < 2) {
+        this.clearFullKmMarkers();
+        this.distance = 0;
+        this.controls.distanceDisplay.html(this.distance.toFixed(2));
         return;
       }
       path = this.markersToTracks();

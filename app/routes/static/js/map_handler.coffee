@@ -272,7 +272,7 @@ class Route
         markerCounter = 1
         for section in fullKmSectionsList
             # split section to subsections (in case section is more then km long)
-            start = Math.ceil(section.startDistance)
+            start = Math.max(Math.ceil(section.startDistance), 1)
             pt1ToFullKmDistance = start - section.startDistance
 
             kmsToMark = []
@@ -298,6 +298,7 @@ class Route
 
                 @fullKmMarkers.push(marker)
                 markerCounter += 1
+                i += 1
 
     # manual route related stuff
     markers: []

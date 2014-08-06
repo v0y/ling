@@ -197,6 +197,11 @@
     };
 
     Route.prototype.clear = function() {
+      this.clearGpxRelatedStuff();
+      return this.clearManualRelatedStuff();
+    };
+
+    Route.prototype.clearGpxRelatedStuff = function() {
       var polyline, _i, _len, _ref;
       this.clearFullKmMarkers();
       if (this.startMarker) {
@@ -225,7 +230,7 @@
 
     Route.prototype.drawTracks = function() {
       var point, polyline, pt, segment, segmentMapPoints, track, trackMapPoints, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _results;
-      this.clear();
+      this.clearGpxRelatedStuff();
       this.latlngbounds = new google.maps.LatLngBounds();
       _ref = this.tracks;
       _results = [];
@@ -370,14 +375,13 @@
     };
 
     Route.prototype.removeMapBindings = function() {
-      var handle, _i, _len, _ref, _results;
+      var handle, _i, _len, _ref;
       _ref = this.mapEventHandles;
-      _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         handle = _ref[_i];
-        _results.push(google.maps.event.removeListener(handle));
+        google.maps.event.removeListener(handle);
       }
-      return _results;
+      return this.mapEventHandles = [];
     };
 
     Route.prototype.addMarker = function(point, position) {
@@ -613,6 +617,21 @@
           'segments': [path]
         }
       ];
+    };
+
+    Route.prototype.clearManualRelatedStuff = function() {
+      var marker, _i, _len, _ref;
+      this.removeMapBindings();
+      _ref = this.markers;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        marker = _ref[_i];
+        marker.setMap(null);
+      }
+      this.markers = [];
+      if (this.activePolyline) {
+        this.activePolyline.setMap(null);
+        return this.activePolyline = null;
+      }
     };
 
     return Route;

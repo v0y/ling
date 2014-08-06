@@ -167,6 +167,10 @@ class Route
         @map.fitBounds(@latlngbounds)
 
     clear: ->
+        @clearGpxRelatedStuff()
+        @clearManualRelatedStuff()
+
+    clearGpxRelatedStuff: ->
         @clearFullKmMarkers()
 
         if @startMarker
@@ -186,7 +190,7 @@ class Route
         @fullKmMarkers = []
 
     drawTracks: ->
-        @clear()
+        @clearGpxRelatedStuff()
 
         # object for handling initial map zoom level and center
         @latlngbounds = new google.maps.LatLngBounds()
@@ -331,6 +335,8 @@ class Route
     removeMapBindings: ->
         for handle in @mapEventHandles
             google.maps.event.removeListener(handle)
+
+        @mapEventHandles = []
 
     addMarker: (point, position) ->
         _this = @
@@ -566,6 +572,18 @@ class Route
             i += 1
 
         return [{'segments': [path]}]
+
+    clearManualRelatedStuff: ->
+        @removeMapBindings()
+
+        for marker in @markers
+            marker.setMap(null)
+
+        @markers = []
+
+        if @activePolyline
+            @activePolyline.setMap(null)
+            @activePolyline = null;
 
 
 ###############################################################################

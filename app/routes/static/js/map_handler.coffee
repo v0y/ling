@@ -47,7 +47,7 @@ class MapHandler
         @getTimes()
 
     addManualRoute: ->
-        route = @addRoute()
+        route = @addRoute(true)
 
     clearRoutes: ->
         for route in @routes

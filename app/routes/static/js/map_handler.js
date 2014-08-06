@@ -64,7 +64,7 @@
 
     MapHandler.prototype.addManualRoute = function() {
       var route;
-      return route = this.addRoute();
+      return route = this.addRoute(true);
     };
 
     MapHandler.prototype.clearRoutes = function() {
